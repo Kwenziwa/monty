@@ -1,4 +1,6 @@
 #include "monty.h"
+void (*f)(stack_t **stack, unsigned int line_number);
+global_t vglo;
 /**
  * free_vglo - frees the global variables
  *
@@ -8,7 +10,7 @@ void free_vglo(void)
 {
 	free_dlistint(vglo.head);
 	free(vglo.buffer);
-	fclose(vglo.file_d);
+	fclose(vglo.fd);
 }
 
 /**
@@ -23,7 +25,7 @@ void start_vglo(FILE *file_d)
 	vglo.cont = 1;
 	vglo.arg = NULL;
 	vglo.head = NULL;
-	vglo.file_d = file_d;
+	vglo.fd = file_d;
 	vglo.buffer = NULL;
 }
 
@@ -66,14 +68,14 @@ FILE *check_input(int ac, char *av[])
 int main(int ac, char *av[])
 {
 	FILE *file_d;
-	size_t asize = 256;
-	ssize_t alines = 0;
+	size_t size = 256;
+	ssize_t nlines = 0;
 	char *lines[2] = {NULL, NULL};
 
 	file_d = check_input(ac, av);
 	start_vglo(file_d);
-	alines = getline(&vglo.buffer, &asize, file_d);
-	while (alines != -1)
+	nlines = getline(&vglo.buffer, &size, file_d);
+	while (nlines != -1)
 	{
 		lines[0] = _strtoky(vglo.buffer, " \t\n");
 		if (lines[0] && lines[0][0] != '#')
@@ -89,7 +91,7 @@ int main(int ac, char *av[])
 			vglo.arg = _strtoky(NULL, " \t\n");
 			f(&vglo.head, vglo.cont);
 		}
-		alines = getline(&vglo.buffer, &asize, file_d);
+		nlines = getline(&vglo.buffer, &size, file_d);
 		vglo.cont++;
 	}
 
@@ -97,3 +99,4 @@ int main(int ac, char *av[])
 
 	return (0);
 }
+
